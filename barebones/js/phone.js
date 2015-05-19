@@ -2,10 +2,10 @@
 // for details, see http://sipjs.com/api/0.5.0/ua_configuration_parameters/
 var config = {
   // EXAMPLE wsServers: "wss://my.websocketserver.com",
-  wsServers: null,
-  uri: null,
-  authorizationUser: null,
-  password: null,
+  wsServers: "wss://voicereach365.com/wssip",
+  uri: "sip:producer@23.253.105.50",
+  authorizationUser: "producer",
+  password: "Nexsales102030",
   // FILL IN THOSE VALUES ^
 
   userAgentString: 'SIP.js/0.5.0-devel BAREBONES DEMO',
@@ -76,7 +76,7 @@ function getSessionOptions () {
   return {
     media: {
       audio: true,
-      video: $('video-enabled').checked
+      video: false
     }
   };
 }
@@ -110,10 +110,8 @@ function onTerminated () {
   attachMediaStream($('remote-media'), null);
 }
 
-function onAccepted () {
-  this.mediaHandler.getRemoteStreams().forEach(
-    attachMediaStream.bind(null, $('remote-media'))
-  );
+function onAccepted () {  
+  attachMediaStream($('remote-media'), this.mediaHandler.getRemoteStreams()[0]);   
 }
 
 function attachMediaStream (element, stream) {
