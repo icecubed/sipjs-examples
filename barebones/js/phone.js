@@ -11,7 +11,19 @@ var config = {
   userAgentString: 'SIP.js/0.5.0-devel BAREBONES DEMO',
   traceSip: true,
 };
-
+var apiNodeBaseUrl = '/dialer';
+var producer = {
+  "id": 'producer@producer',
+  "data": {
+    "user_id"  : 'producer',
+    "username" : 'producer',
+    "sip"      : 'producer',
+    "opensips" : '23.253.105.50',
+    "session"  : 0,
+    "role"     : "producer"
+  },
+  "type": "selectproducer"
+};
 var $ = document.getElementById.bind(document);
 
 // ensure config values are provided
@@ -85,8 +97,21 @@ function dial () {
   if (!$('target').value) {
     return;
   }
+  var number = $('target').value;
+  var prospect = {
+    sip : number
+  };
+  var data={
+    'producer':producer,
+    'prospect':prospect
+  }; 
 
-  setupSession( ua.invite($('target').value, getSessionOptions()) );
+   var xhr = new XMLHttpRequest();
+    xhr.open('POST', apiNodeBaseUrl + '/sf-call', false);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify(data));
+    alert(xmlhttp.responseText);
+  //setupSession( ua.invite($('target').value, getSessionOptions()) );
 }
 
 function endSession () {
