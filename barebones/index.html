@@ -24,16 +24,15 @@
 
     <!-- call controls -->
     <form action="" onsubmit="dial(); return false;">
-      <input type="text" id="target" placeholder="Enter a SIP URI" autofocus>
-      <label for="video-enabled">Video?</label><input type="checkbox" id="video-enabled" checked>
+      <input type="text" id="target" placeholder="Any valid phone number" autofocus>
       <input class="call-control" type="submit" value="Call">
       <input id="hangup" class="call-control" type="button" value="Hang Up" onclick="endSession()">
     </form>
     
-    <p>Remote audio:</p>
     <audio id="remote-media" ></video>
 
     <!-- DTMF -->
+
     <div id="dtmf-buttons">
       <button onclick="sendDtmf('1');">1</button>
       <button onclick="sendDtmf('2');">2</button>
@@ -49,20 +48,7 @@
       <button onclick="sendDtmf('*');">*</button>
     </div>
     
-    <!-- chat -->
-    <p>Chat:</p>
-    <div id="chat-box">
-      <div id="log-container">
-        <pre id="chat-log"></pre>
-      </div>
-      <form action="" onsubmit="sendMessage(); return false;">
-        <div id="message-input">
-          <input type="text" id="message" placeholder="Enter a message">
-          <input type="submit" id="message-submit" value="Send">
-        </div>
-      </form>
-    </div>
-
+    
     <script src="js/sip-0.5.0.js"></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' type='text/javascript'></script>
     <script src="js/phone.js"></script>
