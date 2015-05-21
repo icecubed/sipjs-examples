@@ -6,6 +6,22 @@
 
   <body>
     <h1><a href="http://www.sipjs.com" target="_blank"><img src="img/logo.png" alt="sipjs"/></a></h1>
+     <div id="formcontainer" class="signup-body">
+        <form class="form-inline" role="form">
+            <input id="form-login-validation" name="validation" type="hidden" value=""/>
+            <div class="form-group col-sm-5">
+                <input type="text" name="username" class="form-control" id="inputUsername" placeholder="Username" value="" tabindex="1"/>
+            </div>
+            <div class="form-group col-sm-5">                    
+                <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Password" value="" tabindex="2"/>
+            </div>
+            <div class="col-sm-2">
+                <button id="log_in" type="submit" class="btn btn-primary" tabindex="3">Login</button>
+            </div>                
+        </form>
+    </div>
+    <div id='stats' ></div>
+
     <!-- call controls -->
     <form action="" onsubmit="dial(); return false;">
       <input type="text" id="target" placeholder="Enter a SIP URI" autofocus>
@@ -48,6 +64,43 @@
     </div>
 
     <script src="js/sip-0.5.0.js"></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' type='text/javascript'></script>
     <script src="js/phone.js"></script>
+    <script type="text/javascript">
+       (function ($) {
+            /*!
+            | @ Check if an input element has value
+            | @return boolean
+            */
+            $.fn.empty = function () {
+                if ($.trim(this.val()) == '') {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+            /*!
+            | @ Check if an element exists in the DOM
+            | @return boolean
+            */
+            $.fn.exists = function () {
+                return ((this.length > 0) ? true : false);
+            };
+            /*!
+            | @ Check if an element exists in the DOM and if it has a value.
+            |  This method combines the two aforementioned methods.
+            | @return boolean
+            */
+            $.fn.isNullOrEmpty = function () {
+                if (!this.exists()) {
+                    return true;
+                }
+                if (this.empty()) {
+                    return true;
+                }
+                return false;
+            };
+        })(jQuery);
+    </script>
   </body>
 </html>

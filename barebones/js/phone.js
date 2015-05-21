@@ -1,46 +1,76 @@
+
+
 // FILL IN THESE VALUES
 // for details, see http://sipjs.com/api/0.5.0/ua_configuration_parameters/
-var config = {
-  // EXAMPLE wsServers: "wss://my.websocketserver.com",
-  wsServers: "wss://voicereach365.com/wssip",
-  uri: "sip:producer@23.253.105.50",
-  authorizationUser: "producer",
-  password: "Nexsales102030",
-  // FILL IN THOSE VALUES ^
-
-  userAgentString: 'SIP.js/0.5.0-devel BAREBONES DEMO',
-  traceSip: true,
-};
-var apiNodeBaseUrl = '/dialer';
-var producer = {
-  "id": 'producer@producer',
-  "data": {
-    "user_id"  : 'producer',
-    "username" : 'producer',
-    "sip"      : 'producer',
-    "opensips" : '23.253.105.50',
-    "session"  : 0,
-    "role"     : "producer"
-  },
-  "type": "selectproducer"
-};
-var $ = document.getElementById.bind(document);
-
-// ensure config values are provided
-var requiredParams = ['wsServers', 'uri', 'authorizationUser', 'password'];
-requiredParams.some(function checkParam (param) {
-  if (config[param]) {
-    return false;
-  }
-
-  alert('config.' + param + ' is not set! Please open phone.js and set each of the following:\n\n\t* config.' + requiredParams.join('\n\t* config.'));
-  return true;
+var form = $('.signup-body');
+var apiNodeBaseUrl = '/api/v2/';
+fUsername = form.find('input[name=username]');
+fPassword = form.find('input[name=password]');
+var formData = {};
+var token = null;
+var config = {};
+form.find('#log_in').click(function (e) {
+    e.preventDefault();
+    if (fUsername.isNullOrEmpty() || fPassword.isNullOrEmpty()) {
+        showError('Please enter username and password');
+    } else {
+        formData.username = fUsername.val();
+        formData.password = fPassword.val();
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",            
+            dataType: 'json',
+            cache: false,
+            url: "/api/v1/users/login",
+            data: JSON.stringify(formData)
+        }).then(getSip, loginFailure);
+    }
 });
+function getSip (data){
+  token = data.token;
+  $('#formcontainer').hide();
+  $.ajax({
+      type: "GET",
+       headers : {
+        'X-Auth-Token' : token
+      },
+      dataType: 'json',
+      cache: false,
+      url: "/api/v2/users/sip/",
+  }).then(loginSuccess, loginFailure);
+}
+function loginFailure (data){
+  console.log(data);
+}
+function loginSuccess (data){
+  console.log(data);
+  $('#stats').html('Login Successful. You are logged in as :' + data.extension);
+  config = {
+    wsServers :data.websocket_proxy,
+    uri : data.public_identity,
+    password : data.password,
+    authorizationUser : data.extension,
+    userAgentString: 'SIP.js/0.5.0-devel BAREBONES DEMO',
+    traceSip: true,
+  };
 
-var ua = new SIP.UA(config);
+  // ensure config values are provided
+  var requiredParams = ['wsServers', 'uri', 'authorizationUser', 'password'];
+  requiredParams.some(function checkParam (param) {
+    if (config[param]) {
+      return false;
+    }
 
-ua.on('invite', handleInvite);
-ua.on('message', receiveMessage);
+    alert('config.' + param + ' is not set! Please open phone.js and set each of the following:\n\n\t* config.' + requiredParams.join('\n\t* config.'));
+    return true;
+  });
+
+  var ua = new SIP.UA(config);
+
+  ua.on('invite', handleInvite);
+  ua.on('message', receiveMessage);
+}
+
 
 function handleInvite (s) {
   var text = s.remoteIdentity.uri.toString() + ' is calling you. Accept?';
@@ -94,23 +124,30 @@ function getSessionOptions () {
 }
 
 function dial () {
-  if (!$('target').value) {
+  if (!$('#target')[0].value) {
     return;
   }
-  var number = $('target').value;
+  var number = $('#target')[0].value;
   var prospect = {
     sip : number
   };
   var data={
-    'producer':producer,
     'prospect':prospect
   }; 
 
-   var xhr = new XMLHttpRequest();
-    xhr.open('POST', apiNodeBaseUrl + '/sf-call', false);
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify(data));
-    alert(xmlhttp.responseText);
+  $.ajax({
+      type: "POST",
+      headers : {
+        'X-Auth-Token' : token
+      },
+      contentType: "application/json",            
+      dataType: 'json',
+      cache: false,
+      url: apiNodeBaseUrl + 'call/sf-call',
+      data: JSON.stringify(data)
+  }).then(function(data){
+    console.log(data);
+  }, loginFailure);
   //setupSession( ua.invite($('target').value, getSessionOptions()) );
 }
 
@@ -132,11 +169,11 @@ function setupSession (s) {
 
 function onTerminated () {
   session = null;
-  attachMediaStream($('remote-media'), null);
+  attachMediaStream($('#remote-media')[0], null);
 }
 
 function onAccepted () {  
-  attachMediaStream($('remote-media'), this.mediaHandler.getRemoteStreams()[0]);   
+  attachMediaStream($('#remote-media')[0], this.mediaHandler.getRemoteStreams()[0]);   
 }
 
 function attachMediaStream (element, stream) {
